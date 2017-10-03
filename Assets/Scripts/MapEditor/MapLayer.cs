@@ -1,0 +1,1 @@
+﻿public enum MapLayer { GROUND, BACKGROUND };

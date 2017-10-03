@@ -1,0 +1,1 @@
+﻿public enum CharacterType { Small, Medium, Large };
