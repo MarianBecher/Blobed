@@ -14,14 +14,14 @@ public class MapCreator : MonoBehaviour {
     public CommandStack Commands { get; private set; }
 
     [SerializeField]
-    private LevelLoader loader;
+    private EditorLevelLoader loader;
     public Text temp;
     
     public void Awake()
     {
         Commands = new CommandStack();
         Level = new Map(MAP_WIDTH, MAP_HEIGHT);
-        loader.loadMap(Level, true);
+        loader.loadMap(Level);
     }
     
     void Update()
