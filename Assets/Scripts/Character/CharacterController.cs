@@ -269,7 +269,7 @@ public class CharacterController : MonoBehaviour
     {
 
         direction = Mathf.Sign(direction); //make sure it is realy only 1 or -1;
-        this.transform.Find("eye-container").localScale = new Vector3(-direction, 1, 1);
+        this.transform.Find("eye-container").localScale = new Vector3(-direction, 1, 1) * 0.8f;
         this.lookDirection = -1*direction;
         if(grounded)
         {
