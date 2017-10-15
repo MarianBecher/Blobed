@@ -181,7 +181,7 @@ public class Map : IXmlSerializable
         public int y;
         public Tile t;
         public MapLayer l;
-
+        
         public SerializedTile(Tile t, MapLayer l, int x, int y)
         {
             this.x = x;

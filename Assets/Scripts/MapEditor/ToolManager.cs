@@ -16,6 +16,9 @@ public class ToolManager : MonoBehaviour {
     TilePrefabSelector tileSelector;
     [SerializeField]
     TileConfigurator tileConfigurator;
+    [SerializeField]
+    EditorLevelLoader mapRenderer;
+
     [Header("UI-Components")]
     [SerializeField]
     Button eraseToolBtn;
@@ -28,12 +31,6 @@ public class ToolManager : MonoBehaviour {
     [SerializeField]
     SpriteRenderer selectionCursor;
 
-    [Header("Cameras")]
-    [SerializeField]
-    TextureAlphaRenderer backgroundCam;
-    [SerializeField]
-    TextureAlphaRenderer groundCam;
-
     private Tool selecedTool;
     private bool isMouseDown;
     private Vector2 startPos;
@@ -43,10 +40,8 @@ public class ToolManager : MonoBehaviour {
         tileSelector.onTileSelected += selectTileBrush;
         buildToolBtn.onClick.AddListener(openTileBar);
         eraseToolBtn.onClick.AddListener(selectEraserTool);
-        configToolBtn.onClick.AddListener(selectConfigSelectionTool);
-
-        groundCam.TargetAlpha = 1;
-        backgroundCam.TargetAlpha = 1;
+        configToolBtn.onClick.AddListener(selectConfigSelectionTool<Trigger>);
+        mapRenderer.removeLayerHighlight();
     }
 
     void Update()
@@ -77,7 +72,7 @@ public class ToolManager : MonoBehaviour {
             float maxY = (int)Mathf.Max(startPos.y, mousePosition.y) + 0.5f;
             float offsetX = (maxX - minX) / 2;
             float offsetY = (maxY - minY) / 2;
-            selectionCursor.transform.position = new Vector3(minX+offsetX, minY+offsetY);
+            selectionCursor.transform.position = new Vector3(minX+offsetX, minY+offsetY, selectionCursor.transform.position.z);
             selectionCursor.size = new Vector2(maxX - minX, maxY - minY);
         }
         else if (isMouseDown && !Input.GetMouseButton(0))
@@ -90,8 +85,16 @@ public class ToolManager : MonoBehaviour {
     }
     
 
+    private void reset()
+    {
+        hideTileBar();
+        mapRenderer.removeLayerHighlight();
+        tileConfigurator.hide();
+    }
+
     private void openTileBar()
     {
+        this.reset();
         tileSelector.gameObject.SetActive(true);
     }
 
@@ -100,46 +103,38 @@ public class ToolManager : MonoBehaviour {
         tileSelector.gameObject.SetActive(false);
     }
     
+
     private void selectEraserTool()
     {
-        hideTileBar();
-        resetCamAlpha();
+        this.reset();
         EraserTool eraser = new EraserTool(mapCreator);
         this.selecedTool = eraser;
     }
     
     private void selectTileBrush()
     {
-        hideTileBar();
-        resetCamAlpha();
-        switch (tileSelector.SelectedTileLayer)
-        {
-            case MapLayer.BACKGROUND:
-                groundCam.TargetAlpha = 0.5f;
-                break;
-            case MapLayer.GROUND:
-                backgroundCam.TargetAlpha = 0.5f;
-                break;
-        }
+        this.reset();
+        mapRenderer.highlightLayer(tileSelector.SelectedTileLayer);
         selectedTileSprite.sprite = tileSelector.SelectedTileSprite;
-        TileBrush brush = new TileBrush(tileSelector.SelectedTilePrefabPath, tileSelector.SelectedTileLayer, mapCreator);
+        selectedTileSprite.transform.localScale = tileSelector.SelectedTileScale;
+        TileBrush brush = new TileBrush(tileSelector.SelectedTilePrefabPath, tileSelector.SelectedTileScale, tileSelector.SelectedTileLayer, mapCreator);
         this.selecedTool = brush;
     }
     
-    private void selectConfigSelectionTool()
+    private void selectConfigSelectionTool<T>() where T : MonoBehaviour
     {
-        SelectionTool selector = new SelectionTool(mapCreator);
+        this.reset();
+        SelectionTool<T> selector = new SelectionTool<T>(mapCreator);
         selector.onSelected = delegate
         {
-            tileConfigurator.tile = selector.slectedTiles[0]; //TODO
-            tileConfigurator.gameObject.SetActive(true);
+            tileConfigurator.show(selector.slectedTiles[0]); //TODO
         };
         this.selecedTool = selector;
     }
 
-    public void selectTiles(TilesSelected callback)
+    public void selectTiles<T>(TilesSelected callback) where T : MonoBehaviour
     {
-        SelectionTool selector = new SelectionTool(mapCreator);
+        SelectionTool<T> selector = new SelectionTool<T>(mapCreator);
         selector.onSelected = delegate
         {
             if(callback != null)
@@ -147,11 +142,4 @@ public class ToolManager : MonoBehaviour {
         };
         this.selecedTool = selector;
     }
-
-    private void resetCamAlpha()
-    {
-        backgroundCam.TargetAlpha = 1;
-        groundCam.TargetAlpha = 1;
-    }
-
 }

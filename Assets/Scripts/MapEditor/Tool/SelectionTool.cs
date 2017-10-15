@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-class SelectionTool : Tool
+class SelectionTool<T> : Tool where T : MonoBehaviour
 {
     public Action onSelected;
     public List<Tile> slectedTiles;
+    private Type filter;
 
     public SelectionTool(MapCreator creator) : base(creator)
     {
@@ -30,7 +31,10 @@ class SelectionTool : Tool
                 Tile t = map.getTile(MapLayer.GROUND, x, y);
                 if (t != null)
                 {
-                    slectedTiles.Add(t);
+                    TilePrefab prefab = Resources.Load<TilePrefab>(t.PrefabPath);
+
+                    if (prefab.GetComponent<T>() != null)
+                        slectedTiles.Add(t);
                 }
             }
         }

@@ -17,10 +17,22 @@ public class MapCreator : MonoBehaviour {
     private EditorLevelLoader loader;
     public Text temp;
     
-    public void Awake()
+    void Awake()
     {
         Commands = new CommandStack();
-        Level = new Map(MAP_WIDTH, MAP_HEIGHT);
+        string path = Application.persistentDataPath + "/test.xml";
+        if(System.IO.File.Exists(path))
+        {
+            Level = Serializer.ReadFromXmlFile<Map>(path);
+        }
+        else
+        {
+            Level = new Map(MAP_WIDTH, MAP_HEIGHT);
+        }
+    }
+
+    void Start()
+    {
         loader.loadMap(Level);
     }
     
@@ -32,7 +44,7 @@ public class MapCreator : MonoBehaviour {
        
     private void saveMap()
     {
-        Serializer.WriteToXmlFile<Map>(Application.persistentDataPath + "/test.xml", Level);
+        Serializer.WriteToXmlFile<Map>(Application.persistentDataPath + "/test.xml", Level, false);
     }
 
     public void play()

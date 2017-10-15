@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System;
 
 public class StartScreenController : MonoBehaviour {
 
@@ -9,16 +10,13 @@ public class StartScreenController : MonoBehaviour {
     public LevelLoader loader;
     private InputController input;
     private GameObject startScreen;
+    
 
-    void Awake()
+	// Use this for initialization
+	void Start ()
     {
         Map m = Serializer.ReadFromXmlFile<Map>(Application.persistentDataPath + "/test.xml");
         loader.loadMap(m);
-    }
-
-
-	// Use this for initialization
-	void Start () {
         input = InputController.getController();
         input.stopInput = true;
         startScreen = GameObject.Find("StartScreen");

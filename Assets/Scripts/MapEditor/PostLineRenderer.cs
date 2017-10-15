@@ -15,6 +15,11 @@ public class PostLineRenderer : MonoBehaviour
         createLineMaterial();
     }
 
+    public void clear()
+    {
+        lines.Clear();
+    }
+
     public void addLine(Line l)
     {
         this.lines.Add(l);
@@ -49,7 +54,6 @@ public class PostLineRenderer : MonoBehaviour
         lineMaterial.SetPass(0);
         GL.Begin(GL.LINES);
         GL.Color(lineColor);
-
         foreach(Line l in lines)
         {
             GL.Vertex3(l.start.x, l.start.y, 0);

@@ -47,7 +47,7 @@ public class EraserTool : Tool {
             if (!hasTilesToDelete(layer, startPos, endPos))
                 return; //Nothing to delete
 
-            Command c = new PlaceTileCommand("", map, layer, startPos, endPos);
+            Command c = new PlaceTileCommand("", Vector3.one, map, layer, startPos, endPos);
             commandStack.perform(c);
         }
 

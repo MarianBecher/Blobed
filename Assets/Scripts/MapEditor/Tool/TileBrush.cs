@@ -5,11 +5,13 @@ using UnityEngine;
 
 public class TileBrush : Tool
 {
+    Vector3 tileScale;
     String prefabPath;
     MapLayer layer;
 
-    public TileBrush(String prefabPath, MapLayer layer, MapCreator creator) : base(creator)
+    public TileBrush(String prefabPath, Vector3 tileScale, MapLayer layer, MapCreator creator) : base(creator)
     {
+        this.tileScale = tileScale;
         this.prefabPath = prefabPath;
         this.layer = layer;
     }
@@ -52,7 +54,7 @@ public class TileBrush : Tool
         if (this.isAllSameTile(startPos, endPos))
             return; //Noting to place here
 
-        Command c = new PlaceTileCommand(prefabPath, map, layer, startPos, endPos);
+        Command c = new PlaceTileCommand(prefabPath, tileScale, map, layer, startPos, endPos);
         commandStack.perform(c);
     }
 }

@@ -5,14 +5,19 @@ using System;
 
 public abstract class Trigger : TilePrefab {
 
-    public Action onConfigChanged;
     public List<Triggerable> targets;
 
-    public override void configure(TileSettings settings)
+    public override void configure(TileSettings settings, LevelLoader loader)
     {
-        Debug.Log(settings.triggerTargets.Length);
-        if (onConfigChanged != null)
-            onConfigChanged();
+        foreach(int targetID in settings.triggerTargets)
+        {
+            Debug.Log(targetID);
+            TilePrefab target = loader.getTileInstance(targetID);
+            Debug.Log(target);
+            Debug.Log(target.GetType());
+            if (typeof(Triggerable).IsAssignableFrom(target.GetType()))
+                targets.Add((Triggerable) target);
+        }
     }
 
     protected void informTargets()

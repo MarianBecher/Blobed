@@ -17,16 +17,17 @@ public class TilePrefabSelector : MonoBehaviour
     [SerializeField]
     Transform content;
     [Header("Tile Prefabs")]
-    public Transform[] groundTiles;
-    public Transform[] decorationTiles;
-    public Transform[] specialTiles;
+    public TilePrefab[] groundTiles;
+    public TilePrefab[] decorationTiles;
+    public TilePrefab[] specialTiles;
 
     private List<GameObject> availibleBlocks;
     
     public MapLayer SelectedTileLayer {get; private set;}
     public string SelectedTilePrefabPath { get; private set; }
     public Sprite SelectedTileSprite { get; private set; }
-    
+    public Vector3 SelectedTileScale { get; private set; }
+
     public int callbackOrder
     {
         get
@@ -59,7 +60,7 @@ public class TilePrefabSelector : MonoBehaviour
         decorationTabBtn.interactable = true;
         specialTabBtn.interactable = true;
         blockTabBtn.interactable = true;
-        Transform[] prefabs = new Transform[0]; //TODO Bad Code...
+        TilePrefab[] prefabs = new TilePrefab[0]; //TODO Bad Code...
         switch (selectedTab)
         {
             case Tab.DECORATION:
@@ -84,29 +85,41 @@ public class TilePrefabSelector : MonoBehaviour
         {
             Destroy(g);
         }
-        
+
 
         //Update content
-        foreach(Transform prefab in prefabs)
+        foreach (TilePrefab prefab in prefabs)
         {
-            Sprite sprite = prefab.GetComponent<TilePrefab>().Icon;
+            Sprite sprite = prefab.Icon;
 
-            GameObject newTileBtn = new GameObject();
-            newTileBtn.transform.SetParent(content, false);
-            Image imageComponent = newTileBtn.AddComponent<Image>();
-            imageComponent.sprite = sprite;
-            Button btnComponent = newTileBtn.AddComponent<Button>();
-            btnComponent.transition = Selectable.Transition.None;
-            btnComponent.onClick.AddListener(delegate {
-                this.SelectedTilePrefabPath = "Tiles/" + selectedTab.ToString() +"/"+  prefab.gameObject.name; //TODO echt kacke so
-                this.SelectedTileSprite = sprite;
-                this.SelectedTileLayer = layer;
+            int[] xScales = prefab.AllowFlipHorizontal ? new int[] { 1, -1 } : new int[] { 1 };
+            int[] yScales = prefab.AllowFlipVertical ? new int[] { 1, -1 } : new int[] { 1 };
 
-                if (onTileSelected != null)
-                    onTileSelected();
-            });
+            foreach(int xScale in xScales)
+            {
+                foreach(int yScale in yScales)
+                {
+                    GameObject newTileBtn = new GameObject();
+                    newTileBtn.transform.SetParent(content, false);
+                    newTileBtn.transform.localScale = new Vector3(xScale, yScale, 1);
+                    Image imageComponent = newTileBtn.AddComponent<Image>();
+                    imageComponent.sprite = sprite;
+                    Button btnComponent = newTileBtn.AddComponent<Button>();
+                    btnComponent.transition = Selectable.Transition.None;
+                    btnComponent.onClick.AddListener(delegate {
+                        this.SelectedTilePrefabPath = "Tiles/" + selectedTab.ToString() +"/"+  prefab.gameObject.name; //TODO echt kacke so
+                        this.SelectedTileSprite = sprite;
+                        this.SelectedTileLayer = layer;
+                        this.SelectedTileScale = new Vector3(xScale, yScale, 1);
 
-            availibleBlocks.Add(newTileBtn);
+                        if (onTileSelected != null)
+                            onTileSelected();
+                    });
+
+                    availibleBlocks.Add(newTileBtn);
+
+                }
+            }
         }
     }    
 }

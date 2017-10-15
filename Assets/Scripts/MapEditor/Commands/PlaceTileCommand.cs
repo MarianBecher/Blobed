@@ -9,23 +9,19 @@ public class PlaceTileCommand : Command
     private MapLayer layer;
     private Vector2 startPos;
     private Vector2 endPos;
+    private Vector3 tileScale;
     private string prefabPath;
-    private Tile placedTile;
     private List<OldTileInfo> oldTiles;
 
-    public PlaceTileCommand(String prefabPath, Map map, MapLayer layer, Vector2 endPos, Vector2 startPos)
+    public PlaceTileCommand(String prefabPath, Vector3 tileScale, Map map, MapLayer layer, Vector2 endPos, Vector2 startPos)
     {
         this.map = map;
         this.prefabPath = prefabPath;
         this.startPos = startPos;
         this.endPos = endPos;
         this.layer = layer;
+        this.tileScale = tileScale;
         this.oldTiles = new List<OldTileInfo>();
-
-        if (prefabPath != "")
-            this.placedTile = new Tile(prefabPath);
-        else
-            this.prefabPath = null;
     }
 
     public override void perform()
@@ -42,7 +38,10 @@ public class PlaceTileCommand : Command
                 Tile oldTile = map.getTile(layer, x, y);
                 this.oldTiles.Add(new OldTileInfo(oldTile, x, y));
                 
-                map.setTile(placedTile, layer, x, y);
+                if(this.prefabPath != "")
+                    map.setTile(new Tile(prefabPath, tileScale), layer, x, y);
+                else
+                    map.setTile(null, layer, x, y);
             }
         }
     }
